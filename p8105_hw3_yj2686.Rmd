@@ -71,11 +71,11 @@ instacart %>%
   ) 
 ```
 
-Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits” and the number of times each item is ordered.
 
 ```{r}
 instacart %>% 
-  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>% 
+  filter(aisle == c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>% 
   group_by(aisle) %>% 
   count(product_name) %>% 
   rename(ordered_times = n) %>% 
@@ -85,4 +85,27 @@ instacart %>%
   arrange(aisle, rank) %>% 
   knitr::kable()
 ```
+
+Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week:
+
+```{r}
+instacart %>% 
+  filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
+  group_by(product_name, order_dow) %>% 
+  summarize(mean_hour = mean(order_hour_of_day)) %>% 
+  mutate(order_dow = ifelse(order_dow == 0, "Sunday", order_dow),
+         order_dow = ifelse(order_dow == 1, "Monday", order_dow),
+         order_dow = ifelse(order_dow == 2, "Tuesday", order_dow),
+         order_dow = ifelse(order_dow == 3, "Wednesday", order_dow),
+         order_dow = ifelse(order_dow == 4, "Thursday", order_dow),
+         order_dow = ifelse(order_dow == 5, "Friday", order_dow),
+         order_dow = ifelse(order_dow == 6, "Saturday", order_dow)) %>% 
+  pivot_wider(
+    names_from = order_dow,
+    values_from = mean_hour
+  ) %>% 
+  knitr::kable()
+```
+  
+## Problem 2
 
