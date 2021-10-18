@@ -6,25 +6,60 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(p8105.datasets)
+data("instacart")
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
 ```
 
-## R Markdown
+## Problem 1
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Description of instacart dataset:
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+The instacart dataset is an anonymized dataset with over 3 million online grocery orders from more than 200,000 Instacart users. This dataset contains `r nrow(instacart)` observations of products from online orders, and `r ncol(instacart)` variables which are `r names(instacart)`.
 
-```{r cars}
-summary(cars)
+How many aisles are there, and which aisles are the most items ordered from?
+
+There are `134` aisles and the most items ordered from `fresh vegetables`
+
+```{r}
+instacart %>% 
+  group_by(aisle_id, aisle) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count))
 ```
 
-## Including Plots
+Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+instacart %>% 
+  count(aisle) %>% 
+  filter(n > 10000) %>% 
+  mutate(
+    aisle = fct_reorder(aisle, n)
+  ) %>% 
+  ggplot(aes(x = n, y = aisle)) +
+  geom_point() +
+  labs(
+    title = "The number of items ordered in each aisle",
+    x = "The number of items",
+    y = "Aisles",
+    caption = "Data from instacart dataset"
+  )
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
