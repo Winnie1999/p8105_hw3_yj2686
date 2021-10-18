@@ -352,6 +352,30 @@ pre code {
 </div>
 <div id="problem-2" class="section level2">
 <h2>Problem 2</h2>
+<p><strong>Load BRFSS dataset</strong></p>
+<pre class="r"><code>data(&quot;brfss_smart2010&quot;)</code></pre>
+<p><strong>Data Cleaning</strong></p>
+<pre class="r"><code>brfss_df = brfss_smart2010 %&gt;% 
+  janitor::clean_names() %&gt;% 
+  filter(topic == c(&quot;Overall Health&quot;)) %&gt;% 
+  mutate(response = factor(response, levels = c(&quot;Poor&quot;, &quot;Fair&quot;, &quot;Good&quot;, &quot;Very good&quot;, &quot;Excellent&quot;))) %&gt;% 
+  arrange(response) %&gt;% 
+  select(-locationabbr, -class, -topic,  -question, -c(confidence_limit_low:geo_location))
+brfss_df</code></pre>
+<pre><code>## # A tibble: 10,625 × 5
+##     year locationdesc           response sample_size data_value
+##    &lt;int&gt; &lt;chr&gt;                  &lt;fct&gt;          &lt;int&gt;      &lt;dbl&gt;
+##  1  2010 AL - Jefferson County  Poor              45        5.5
+##  2  2010 AL - Mobile County     Poor              66        6.4
+##  3  2010 AL - Tuscaloosa County Poor              35        4.2
+##  4  2010 AZ - Maricopa County   Poor              62        3.5
+##  5  2010 AZ - Pima County       Poor              49        5.7
+##  6  2010 AZ - Pinal County      Poor              30        4  
+##  7  2010 AR - Benton County     Poor              21        3  
+##  8  2010 AR - Pulaski County    Poor              36        3.8
+##  9  2010 AR - Washington County Poor              16        2.4
+## 10  2010 CA - Alameda County    Poor              23        2.4
+## # … with 10,615 more rows</code></pre>
 </div>
 
 

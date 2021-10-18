@@ -109,3 +109,21 @@ instacart %>%
   
 ## Problem 2
 
+**Load BRFSS dataset**
+
+```{r}
+data("brfss_smart2010")
+```
+
+**Data Cleaning**
+
+```{r}
+brfss_df = brfss_smart2010 %>% 
+  janitor::clean_names() %>% 
+  filter(topic == c("Overall Health")) %>% 
+  mutate(response = factor(response, levels = c("Poor", "Fair", "Good", "Very good", "Excellent"))) %>% 
+  arrange(response) %>% 
+  select(-locationabbr, -class, -topic,  -question, -c(confidence_limit_low:geo_location))
+brfss_df
+```
+
