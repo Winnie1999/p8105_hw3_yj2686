@@ -8,7 +8,6 @@ output: html_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(p8105.datasets)
-data("instacart")
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -29,6 +28,13 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ## Problem 1
 
+**Load instacart dataset**
+
+```{r}
+data("instacart")
+```
+
+
 Description of instacart dataset:
 
 The instacart dataset is an anonymized dataset with over 3 million online grocery orders from more than 200,000 Instacart users. This dataset contains `r nrow(instacart)` observations of products from online orders, and `r ncol(instacart)` variables which are `r names(instacart)`.
@@ -46,20 +52,37 @@ instacart %>%
 
 Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
 
-```{r}
+```{r fig.width=8,fig.height=8}
 instacart %>% 
   count(aisle) %>% 
-  filter(n > 10000) %>% 
+  rename(ordered_num = n) %>% 
+  filter(ordered_num > 10000) %>% 
   mutate(
-    aisle = fct_reorder(aisle, n)
+    aisle = fct_reorder(aisle, ordered_num)
   ) %>% 
-  ggplot(aes(x = n, y = aisle)) +
+  ggplot(aes(x = ordered_num, y = aisle)) +
   geom_point() +
+  scale_x_continuous(breaks = scales::pretty_breaks(ordered_num = 10)) +
   labs(
     title = "The number of items ordered in each aisle",
     x = "The number of items",
     y = "Aisles",
     caption = "Data from instacart dataset"
-  )
+  ) 
+```
+
+Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+
+```{r}
+instacart %>% 
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>% 
+  group_by(aisle) %>% 
+  count(product_name) %>% 
+  rename(ordered_times = n) %>% 
+  mutate(rank = min_rank(desc(ordered_times))) %>% 
+  filter(rank < 4) %>% 
+  relocate(aisle, rank) %>% 
+  arrange(aisle, rank) %>% 
+  knitr::kable()
 ```
 
