@@ -116,29 +116,6 @@ data("brfss_smart2010")
 ```
 
 **Data Cleaning**
-```{r}
-brfss_smart2010 <- 
-  brfss_smart2010 %>% 
-  janitor::clean_names() %>%
-  # rename variables
-  rename("location" = locationdesc, 
-         "resp_id" = respid) %>%
-  separate(location, into = c("state", "location"), sep = " - ") %>%
-  select(-locationabbr) %>%
-  # focus on the “Overall Health” topic
-  filter(topic == "Overall Health") %>% 
-  # include only responses from “Excellent” to “Poor”
-  filter(
-    response %in% c("Excellent", "Poor", "Very good", "Good", "Fair")
-    ) %>%
-  mutate(
-    response = factor(response, 
-                      levels = c("Poor", "Fair", "Good", "Very good", "Excellent"), 
-                      ordered = TRUE)) %>%
-  # organize responses as a factor taking levels ordered from “Poor” to “Excellent”
-  arrange(response)
-brfss_smart2010
-```
 
 ```{r}
 brfss_df = brfss_smart2010 %>% 
@@ -154,8 +131,6 @@ brfss_df %>% view()
 
 1. In 2002, which states were observed at 7 or more locations? What about in 2010?
 
-ANSWER: CT, FL, MA, NC, NJ, PA were observed at 7 or more locations in 2002.
-
 ```{r}
 brfss_2002 = brfss_df %>% 
   filter(year == 2002) %>% 
@@ -167,6 +142,8 @@ brfss_2002 = brfss_df %>%
 brfss_2002
 ```
 
+ANSWER: CT, FL, MA, NC, NJ, PA were observed at 7 or more locations in 2002.
+
 ```{r}
 brfss_2010 = brfss_df %>% 
   filter(year == 2010) %>% 
@@ -176,3 +153,6 @@ brfss_2010 = brfss_df %>%
   filter(n >= 7)
 
 brfss_2010
+```
+
+ANSWER: CA, CO, FL, MA, MD, NC, NJ, NY, OH, PA, SC, TX, WA were observed at 7 or more locations in 2002.
