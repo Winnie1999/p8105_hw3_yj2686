@@ -120,7 +120,7 @@ data("brfss_smart2010")
 ```{r}
 brfss_df = brfss_smart2010 %>% 
   janitor::clean_names() %>% 
-  separate(locationdesc, into = c("state", "location"), sep = '-') %>% 
+  separate(locationdesc, into = c("state", "location"), sep = ' - ') %>% 
   filter(topic == c("Overall Health")) %>% 
   mutate(response = factor(response, levels = c("Poor", "Fair", "Good", "Very good", "Excellent"),ordered = TRUE)) %>% 
   arrange(response) %>% 
@@ -181,7 +181,28 @@ excellent_df %>%
     title = "Average data value of Excellent responses over time in different states",
     x = "Year",
     y = "Mean data value of Excellent responses",
-    caption = "Data from brfss_smart2010 "
+    caption = "Data from brfss_smart2010"
+  )
+```
+
+3. Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.
+
+```{r}
+NY_distribution = brfss_df %>% 
+  filter(year %in% c(2006, 2010),
+         state == "NY") %>% 
+  group_by(year, response) %>% 
+  summarize(mean_dataValue = mean(data_value, na.rm = TRUE)) 
+
+NY_distribution %>% 
+  ggplot(aes(x = response, y = mean_dataValue, fill = response)) +
+  geom_col(position = "dodge", binwidth = 2) +
+  facet_grid(. ~ year) +
+  labs(
+    title = "Distribution of data value for responses among locations in NY State",
+    x = "responses among locations in NY State",
+    y = "Mean data value",
+    caption = "Data from brfss_smart2010"
   )
 ```
 
