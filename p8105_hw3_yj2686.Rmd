@@ -52,6 +52,7 @@ instacart %>%
 
 Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
 
+
 ```{r fig.width=9,fig.height=9}
 instacart %>% 
   count(aisle) %>% 
@@ -62,7 +63,8 @@ instacart %>%
   ) %>% 
   ggplot(aes(x = ordered_num, y = aisle)) +
   geom_point() +
-  scale_x_continuous(breaks = scales::pretty_breaks(ordered_num = 10)) +
+  #scale_x_continuous(breaks = scales::pretty_breaks(ordered_num = 10)) +
+  scale_x_continuous(breaks = c(0, 25000, 50000,75000, 100000, 125000, 150000)) +
   labs(
     title = "The number of items ordered in each aisle",
     x = "The number of items",
@@ -196,7 +198,7 @@ NY_distribution = brfss_df %>%
 
 NY_distribution %>% 
   ggplot(aes(x = response, y = mean_dataValue, fill = response)) +
-  geom_col(position = "dodge", binwidth = 2) +
+  geom_col(position = "dodge") +
   facet_grid(. ~ year) +
   labs(
     title = "Distribution of data value for responses among locations in NY State",
@@ -206,3 +208,52 @@ NY_distribution %>%
   )
 ```
 
+## Problem 3
+
+Load, tidy, and otherwise wrangle the data. 
+
+**Load and tidy Data**
+
+```{r}
+accel_df = read.csv("./accel_data.csv") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(
+    cols = activity_1:activity_1440,
+    names_to = "activity_number",
+    values_to = "activity_counts",
+    names_prefix = "activity_"
+  ) %>% 
+  mutate(
+    weekend_or_weekday = if_else((day == "Saturday" | day == "Sunday"),"weekend","weekday")
+  )
+
+
+accel_df
+```
+Describe the resulting dataset:
+
+The accel_df contains `r nrow(accel_df)` observations of activity (accelerometer data), and there are `r ncol(accel_df)` variables, which are `r names(accel_df)` that describing the information of data.
+
+Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
+
+```{r}
+total_activity_df = accel_df %>% 
+  group_by(day_id) %>% 
+  summarize(total_activity = sum(activity_counts)) 
+
+knitr::kable(total_activity_df)
+```
+
+```{r}
+ggplot(total_activity_df,aes(x = day_id, y = total_activity)) +
+  geom_point() +
+  geom_line() +
+  labs(
+    title = "Trend for total activity counts for each day in five weeks",
+    x = "Day ID",
+    y = "Total Activity counts"
+  ) +
+  scale_x_continuous(breaks = c(0, 5, 10, 15, 20, 25, 30, 35))
+```
+
+The trend of total activity counts for each day is dramatically changed over five weeks.
