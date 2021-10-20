@@ -35,13 +35,12 @@ data("instacart")
 ```
 
 
-Description of instacart dataset:
+**Description of instacart dataset:**
 
 The instacart dataset is an anonymized dataset with over 3 million online grocery orders from more than 200,000 Instacart users. This dataset contains `r nrow(instacart)` observations of products from online orders, and `r ncol(instacart)` variables which are `r names(instacart)`.
+Specifically, `r names(instacart)[7]` stands for the order sequence number for this user (1=first, n=nth), ranging from `r range(pull(instacart, order_number))`. `r names(instacart)[8]` stands for the day of the week on which the order was placed. And `r names(instacart)[10]` stands for days since the last order, capped at 30, NA if order_number = 1, ranging from `r range(pull(instacart, days_since_prior_order))`.
 
-How many aisles are there, and which aisles are the most items ordered from?
-
-There are `134` aisles and the most items ordered from `fresh vegetables`
+**How many aisles are there, and which aisles are the most items ordered from?**
 
 ```{r}
 instacart %>% 
@@ -50,10 +49,13 @@ instacart %>%
   arrange(desc(count))
 ```
 
-Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+**ANSWER:**
+There are `134` aisles and the most items ordered from `fresh vegetables`
 
 
-```{r fig.width=9,fig.height=9}
+**Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered.**
+
+```{r fig.width = 9,fig.height = 9}
 instacart %>% 
   count(aisle) %>% 
   rename(ordered_num = n) %>% 
@@ -63,17 +65,17 @@ instacart %>%
   ) %>% 
   ggplot(aes(x = ordered_num, y = aisle)) +
   geom_point() +
-  #scale_x_continuous(breaks = scales::pretty_breaks(ordered_num = 10)) +
-  scale_x_continuous(breaks = c(0, 25000, 50000,75000, 100000, 125000, 150000)) +
+  scale_x_continuous(breaks = seq(0,150000,by = 25000)) +
   labs(
     title = "The number of items ordered in each aisle",
     x = "The number of items",
     y = "Aisles",
     caption = "Data from instacart dataset"
-  ) 
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
-Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits” and the number of times each item is ordered.
+**Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits” and the number of times each item is ordered.**
 
 ```{r}
 instacart %>% 
@@ -88,7 +90,7 @@ instacart %>%
   knitr::kable()
 ```
 
-Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week:
+**Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week:**
 
 ```{r}
 instacart %>% 
@@ -127,10 +129,9 @@ brfss_df = brfss_smart2010 %>%
   mutate(response = factor(response, levels = c("Poor", "Fair", "Good", "Very good", "Excellent"),ordered = TRUE)) %>% 
   arrange(response) %>% 
   select(-locationabbr)
-  ##select(-locationabbr, -class, -topic,  -question, -c(confidence_limit_low:geo_location))
 ```
 
-1. In 2002, which states were observed at 7 or more locations? What about in 2010?
+**In 2002, which states were observed at 7 or more locations?**
 
 ```{r}
 brfss_2002 = brfss_df %>% 
@@ -143,7 +144,10 @@ brfss_2002 = brfss_df %>%
 brfss_2002
 ```
 
-ANSWER: `r brfss_2002$state` were observed at 7 or more locations in 2002.
+**ANSWER:**
+`r brfss_2002$state` were observed at 7 or more locations in 2002.
+
+**What about in 2010?**
 
 ```{r}
 brfss_2010 = brfss_df %>% 
@@ -156,48 +160,47 @@ brfss_2010 = brfss_df %>%
 brfss_2010
 ```
 
-ANSWER: 
+**ANSWER:** 
 `r brfss_2010$state` were observed at 7 or more locations in 2010.
 
-2. Construct a dataset that is limited to Excellent responses, and contains, year, state, and a variable that averages the data_value across locations within a state. 
+**Construct a dataset that is limited to Excellent responses, and contains, year, state, and a variable that averages the data_value across locations within a state.**
 
 ```{r}
 excellent_df = brfss_df %>%
   filter(response == "Excellent") %>% 
   group_by(state, year) %>% 
   summarize(mean_data_value = mean(data_value, na.rm = TRUE))
-
 excellent_df
 ```
 
-Make a “spaghetti” plot of this average value over time within a state (that is, make a plot showing a line for each state across years – the geom_line geometry and group aesthetic will help).
+**Make a “spaghetti” plot of the average value over time within a state.**
 
 ```{r fig.width = 10, fig.height = 10}
 excellent_df %>% 
   ggplot(aes(x = year, y = mean_data_value, color = state)) +
   geom_line(alpha = .5, aes(group = state, color = state)) +
   geom_point(alpha = .5, aes(group = state, color = state)) +
-  theme(axis.text.x = element_text(size = 10), legend.position = "right") +
   labs(
     title = "Average data value of Excellent responses over time in different states",
     x = "Year",
     y = "Mean data value of Excellent responses",
     caption = "Data from brfss_smart2010"
   ) +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(legend.position = "right",
+        plot.title = element_text(hjust = 0.5))
 ```
 
-3. Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.
+**Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.**
 
 ```{r}
 NY_distribution = brfss_df %>% 
   filter(year %in% c(2006, 2010),
          state == "NY") %>% 
   group_by(year, response) %>% 
-  summarize(mean_dataValue = mean(data_value, na.rm = TRUE)) 
+  summarize(average_data_value = mean(data_value, na.rm = TRUE)) 
 
 NY_distribution %>% 
-  ggplot(aes(x = response, y = mean_dataValue, fill = response)) +
+  ggplot(aes(x = response, y = average_data_value, fill = response)) +
   geom_col(position = "dodge") +
   facet_grid(. ~ year) +
   labs(
@@ -209,8 +212,6 @@ NY_distribution %>%
 ```
 
 ## Problem 3
-
-Load, tidy, and otherwise wrangle the data. 
 
 **Load and tidy Data**
 
@@ -224,18 +225,22 @@ accel_df = read.csv("./accel_data.csv") %>%
     names_prefix = "activity_"
   ) %>% 
   mutate(
-    weekend_or_weekday = if_else((day == "Saturday" | day == "Sunday"),"weekend","weekday"),
-    minute = as.numeric(minute)
-  )
+    weekend_or_weekday = if_else((day == "Saturday" | day == "Sunday"),"Weekend","Weekday"),
+    minute = as.numeric(minute),
+    day = factor(day, level = c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday")),
+    weekend_or_weekday = factor(weekend_or_weekday, level = c("Weekday", "Weekend"))
+  ) %>% 
+  relocate(week,day_id, day,weekend_or_weekday)
 
 
 accel_df
 ```
-Describe the resulting dataset:
+**Describe the resulting dataset:**
 
-The accel_df contains `r nrow(accel_df)` observations of activity (accelerometer data), and there are `r ncol(accel_df)` variables, which are `r names(accel_df)` that describing the information of data.
+The accel_df dataset contains five weeks of accelerometer data collected on a 63 year-old male with BMI 25, who was admitted to the Advanced Cardiac Care Center of Columbia University Medical Center and diagnosed with congestive heart failure (CHF). 
+The accel_df dataset contains `r nrow(accel_df)` observations of activity (accelerometer data), and there are `r ncol(accel_df)` variables, which are `r names(accel_df)` that describing the information of data. Specifically, `r names(accel_df)[5]` stands for the number of minute of a 24-hour day starting at midnight, range from `r range(pull(accel_df, minute))` minutes. And `r names(accel_df)[6]` stands for the activity count of the male collected by accelerometer, ranging from `r range(pull(accel_df, activity_counts))`.
 
-Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
+**Aggregate across minutes to create a total activity variable for each day, and create a table showing these totals.**
 
 ```{r}
 total_activity_df = accel_df %>% 
@@ -244,6 +249,8 @@ total_activity_df = accel_df %>%
 
 knitr::kable(total_activity_df)
 ```
+
+**Are any trends apparent?**
 
 ```{r}
 ggplot(total_activity_df,aes(x = day_id, y = total_activity)) +
@@ -259,14 +266,16 @@ ggplot(total_activity_df,aes(x = day_id, y = total_activity)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-The trend of total activity counts for each day is dramatically changed over five weeks.
+**ANSWER:**
 
-Accelerometer data allows the inspection activity over the course of the day. Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. Describe in words any patterns or conclusions you can make based on this graph.
+The trend of total activity counts for each day is dramatically changed over time in five weeks.
 
-```{r fig.width=10,fig.height=9}
+**Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week.**
+
+```{r fig.width = 10, fig.height = 9}
 accel_df %>% 
   ggplot(aes(x = minute, y = activity_counts, color = day)) +
-  geom_point(alpha = .5) +
+  geom_point() +
   geom_line(alpha = .3) +
   scale_x_continuous(breaks = seq(0,1440,by = 60),
                      label = seq(0,24,by = 1),
@@ -279,5 +288,9 @@ accel_df %>%
   ) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
+**Describe the pattern of the graph:**
+
+This 63 year-old male typically start activity at around 7 AM. The activity counts between 11 AM to 12 AM and 16 PM to 17 PM increased during weekend (Saturday and Sunday). There is a large increase in activity counts between 20 PM to 22 PM for most of the days in week (especially on Friday). And this male tend to sleep at around 22 PM.
 
 
